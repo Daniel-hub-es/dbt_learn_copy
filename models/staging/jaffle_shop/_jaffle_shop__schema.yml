@@ -9,8 +9,8 @@ models:
   - name: stg_jaffle_shop__customers
     description: one unique customer per row
     access: protected
-    config:
-      group: customers
+    # config:
+    #   group: customers
     columns:
       - name: customer_id
         description: primary key
