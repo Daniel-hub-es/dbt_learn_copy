@@ -1,0 +1,52 @@
+# yml for the models that describes them and place to put generic tests.
+# If the tests fails it's going to show an error that can be debbuged using the console logs query applied.
+# Can have descriptions and informations about the models to generate the documentation.
+# Config groups and accesess to the different versions of the models
+
+version: 2
+
+models:
+  - name: stg_jaffle_shop__customers
+    description: one unique customer per row
+    access: protected
+    config:
+      group: customers
+    columns:
+      - name: customer_id
+        description: primary key
+        data_tests:
+          - unique
+          - not_null
+  - name: stg_jaffle_shop__orders
+    description: one order per row
+    columns:
+      - name: order_id
+        description: primary key
+        data_tests:
+        - unique
+        - not_null
+      - name: order_status
+        description: "{{ doc('orders_status') }}"
+        data_tests:
+        - accepted_values:
+            values:
+              - "completed"
+              - "return_pending"
+              - "shipped"
+              - "placed"
+              - "returned"
+      - name: customer_id
+        data_tests:
+        - relationships:
+            to: ref('stg_jaffle_shop__customers')
+            field: customer_id
+        - unique:
+            config:
+              severity: warn
+              error_if: ">30"
+              warn_if: ">10"
+              where: "valid_order_date > '2018-03-01'"
+              limit: 10
+              store_failures: true
+              schema: test_failures
+            description: "Warn if there are more than 10 unique customer_id values in the orders table."
