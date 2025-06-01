@@ -23,7 +23,7 @@ sources:
         description: raw customer data
         freshness: null
         columns:
-          - name: id # raw name column. src: id -> stg: customer_id
+          - name: '"ID"' # raw name column. src: id -> stg: customer_id
             description: Primary key for customers data
             data_tests:
               - unique
@@ -40,7 +40,7 @@ sources:
             period: day
         loaded_at_field: 'CAST("ORDER_DATE" AS TIMESTAMP)' # culumn must be TIMESTAMP instead of DATE column.
         columns:
-          - name: id # raw name column. src: id -> stg: order_id
+          - name: '"ID"' # raw name column. src: id -> stg: order_id
             description: Primary key for customers data
             data_tests:
               - unique
