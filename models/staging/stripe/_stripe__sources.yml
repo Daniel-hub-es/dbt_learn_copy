@@ -28,13 +28,12 @@ sources:
             period: day
         loaded_at_field: 'CAST("CREATED" AS TIMESTAMP)' # Column must be TIMESTAMP instead of DATE column.'
         columns:
-          - name: id # raw name column. src: id -> stg: payment_id
+          - name: '"ID"' # raw name column. src: id -> stg: payment_id
             description: "Primary key for payments data"
             data_tests:
               - unique
               - not_null
-          - name: amount # raw name column. src: amount -> stg: payment_amount
+          - name: '"AMOUNT"' # raw name column. src: amount -> stg: payment_amount
             description: "Amount of the payment"
             data_tests:
               - not_null
-              - unique
