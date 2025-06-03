@@ -1,0 +1,31 @@
+models:
+  - name: fct_orders
+    latest_version: 1 # if not given will run the lastest version of the model
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: order_id
+        data_type: integer
+        constraints:
+          - type: not_null
+      - name: customer_id
+        data_type: integer
+        constraints:
+          - type: not_null
+      - name: order_date
+        data_type: date
+        constraints:
+          - type: not_null
+      - name: amount
+        data_type: float
+    versions:
+      - v: 1
+        config:
+          alias: fct_orders
+      - v: 2
+        columns:
+          - name: order_amount ## v2 add this name and type change
+            data_type: integer
+          - include: all
+            exclude: [amount] # removes old name from column adjusted
