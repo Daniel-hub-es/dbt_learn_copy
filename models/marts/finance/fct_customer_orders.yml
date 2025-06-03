@@ -1,0 +1,6 @@
+models:
+  - name: fct_customer_orders
+    config:
+      group: customers
+      contract:
+        enforced: false
