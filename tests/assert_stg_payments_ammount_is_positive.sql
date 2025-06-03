@@ -11,5 +11,5 @@ select
     order_id,
     sum(amount) as total_amount
 from payments
-group by order_id
-having total_amount < 0
+group by order_id, amount
+having amount < 0
