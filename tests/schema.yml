@@ -1,0 +1,10 @@
+version: 2
+data_tests:
+  - name: aassert_stg_payments_ammount_is_positive
+    description: >
+      Refunds have a negative amount, so the total amount should always de >= 0.
+      Therefore return records were total amount < 0 to make the test fail.
+  - name: assert_column_is_greater_than_five
+    description: >
+      Refunds have a quantity lower than five for the specified column and model
+      configured in the schema.yml file for the specific column of the model. 
