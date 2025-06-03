@@ -18,7 +18,7 @@ models:
         constraints:
           - type: not_null
       - name: amount
-        data_type: float
+        data_type: decimal
     versions:
       - v: 1
         config:
