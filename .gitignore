@@ -1,13 +1,17 @@
 # Python
-.venv/
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.venv/
 
-# dbt
+# DBT
 dbt_packages/
 target/
 logs/
 
-# OS files
-.DS_Store
-*.db
+# Secrets
+.env
+
+# VS Code
+.vscode/
