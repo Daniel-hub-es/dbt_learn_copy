@@ -1,0 +1,40 @@
+# profiles.yml
+
+my_dbt_project:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      threads: 4
+      host: localhost
+      port: "{{ env_var('PG_PORT') | int }}"
+      user: "{{ env_var('DB_USER') }}"
+      pass: "{{ env_var('DB_PASSWORD') }}"
+      dbname: "{{ env_var('DB_NAME') }}"
+      schema: dbt_dev
+      vars:
+        data_retention_days: 7
+
+    test:
+      type: postgres
+      threads: 4
+      host: db
+      port: "{{ env_var('PG_PORT') }}"
+      user: "{{ env_var('DB_USER') }}"
+      pass: "{{ env_var('DB_PASSWORD') }}"
+      dbname: "{{ env_var('DB_NAME') }}"
+      schema: dbt_test
+      vars:
+        data_retention_days: 90
+
+    prod:
+      type: postgres
+      threads: 4
+      host: db
+      port: "{{ env_var('PG_PORT') }}"
+      user: "{{ env_var('DB_USER') }}"
+      pass: "{{ env_var('DB_PASSWORD') }}"
+      dbname: "{{ env_var('DB_NAME') }}"
+      schema: dbt_prod
+      vars:
+        data_retention_days: 365
