@@ -12,7 +12,7 @@ sources:
   - name: stripe
     description: "Stripe source data for payments"
     database: dbt_db
-    schema: public
+    schema: "{{ 'dbt_' + target.name }}"
     # Freshness can be applied at a schema level. If the column for freshness does not exist in one of the tables,
     # set the freshness for that table as null.
     # Generic tests can be applied on the source.

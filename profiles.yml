@@ -39,6 +39,7 @@ my_dbt_project:
       vars:
         is_production: false
 
+
     prod:
       type: postgres
       threads: 4
@@ -50,3 +51,4 @@ my_dbt_project:
       schema: dbt_prod
       vars:
         is_production: false
+
