@@ -1,3 +1,6 @@
+on:
+  pull_request:
+
 jobs:
   dbt_ci:
     runs-on: ubuntu-latest
@@ -41,6 +44,4 @@ jobs:
       # Cleanup schema
       - name: Cleanup schema
         if: always()
-        env:
-          GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: dbt run-operation drop_schema_and_tables --target ci --args '{{ schema: "dbt_ci_pr_" ~ env_var("GITHUB_PR_NUMBER") }}'
+        run: "dbt run-operation drop_schema_and_tables --target ci --args '{\"schema\": \"dbt_ci_pr_${{ github.event.pull_request.number }}\"}'"
