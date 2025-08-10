@@ -31,7 +31,6 @@ clean-targets:         # directories to be removed by `dbt clean`
 # files using the `{{ config(...) }}` macro.
 models:
   my_dbt_project:
-    +schema: "{{ 'dbt_' + target.name}}"
      # +required_tests: {"unique.*|not_null": 2} check if required tests are present or shows the error of missing tests.
     # Applies to all files under models folders for tests and materializations.
     marts:
