@@ -1,26 +1,11 @@
-# .github/workflows/ci.yml
-
-name: dbt CI Job
-
-on:
-  pull_request:
-    branches:
-      - main
-      - test
-      - qa
-
-env:
-  DB_USER: "{{ env_var('DB_USER') }}"
-  DB_PASSWORD: "{{ env_var('DB_USER') }}"
-  DB_NAME: "{{ env_var('DB_USER') }}"
-  PG_PORT: "{{ env_var('PG_PORT') | int }}"
-  
 jobs:
   dbt_ci:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # This is required to find the diff between branches
 
       - name: Setup Python
         uses: actions/setup-python@v2
@@ -36,11 +21,24 @@ jobs:
           mkdir -p ~/.dbt
           cp profiles.yml ~/.dbt/profiles.yml
 
-      - name: Run dbt build
+      # This step gets the manifest from the base branch
+      - name: Get manifest from base branch
+        run: |
+          git checkout ${{ github.event.pull_request.base.ref }}
+          dbt compile --target ci
+          cp target/manifest.json .
+
+      # This step checks out the PR's head branch to run the build
+      - name: Checkout head branch
+        run: git checkout ${{ github.event.pull_request.head.ref }}
+
+      # This is the state-aware build command
+      - name: Run dbt build on modified models
         env:
           GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: dbt build --target ci
+        run: dbt build --target ci --select state:modified+ --defer --state .
 
+      # Cleanup schema
       - name: Cleanup schema
         if: always()
         env:
