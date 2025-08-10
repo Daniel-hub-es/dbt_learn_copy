@@ -17,4 +17,7 @@ models:
         data_type: integer
       - name: lifetime_value
         data_type: float
+      - name: dummy_column
+        data_type: string
+        description: This is a dummy column for testing purposes.
         
