@@ -1,0 +1,46 @@
+jobs:
+  dbt_ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # This is required to find the diff between branches
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Install dbt
+        run: |
+          pip install dbt-postgres
+
+      - name: Setup dbt profiles
+        run: |
+          mkdir -p ~/.dbt
+          cp profiles.yml ~/.dbt/profiles.yml
+
+      # This step gets the manifest from the base branch
+      - name: Get manifest from base branch
+        run: |
+          git checkout ${{ github.event.pull_request.base.ref }}
+          dbt compile --target ci
+          cp target/manifest.json .
+
+      # This step checks out the PR's head branch to run the build
+      - name: Checkout head branch
+        run: git checkout ${{ github.event.pull_request.head.ref }}
+
+      # This is the state-aware build command
+      - name: Run dbt build on modified models
+        env:
+          GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: dbt build --target ci --select state:modified+ --defer --state .
+
+      # Cleanup schema
+      - name: Cleanup schema
+        if: always()
+        env:
+          GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: dbt run-operation drop_schema_and_tables --target ci --args '{{ schema: "dbt_ci_pr_" ~ env_var("GITHUB_PR_NUMBER") }}'

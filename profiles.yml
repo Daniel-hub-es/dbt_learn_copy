@@ -13,28 +13,54 @@ my_dbt_project:
       dbname: "{{ env_var('DB_NAME') }}"
       schema: dbt_dev
       vars:
-        data_retention_days: 7
+        is_production: false
+
+    ci:
+      type: postgres
+      threads: 4
+      host: localhost
+      port: "{{ env_var('PG_PORT') | int }}"
+      user: "{{ env_var('DB_USER') }}"
+      pass: "{{ env_var('DB_PASSWORD') }}"
+      dbname: "{{ env_var('DB_NAME') }}"
+      schema: "dbt_ci_pr_{{ env_var('GITHUB_PR_NUMBER') }}"
+      vars:
+        is_production: false
+
+    qa:
+      type: postgres
+      threads: 4
+      host: localhost
+      port: "{{ env_var('PG_PORT') | int }}"
+      user: "{{ env_var('DB_USER') }}"
+      pass: "{{ env_var('DB_PASSWORD') }}"
+      dbname: "{{ env_var('DB_NAME') }}"
+      schema: dbt_qa
+      vars:
+        is_production: false
 
     test:
       type: postgres
       threads: 4
-      host: db
-      port: "{{ env_var('PG_PORT') }}"
+      host: localhost
+      port: "{{ env_var('PG_PORT') | int }}"
       user: "{{ env_var('DB_USER') }}"
       pass: "{{ env_var('DB_PASSWORD') }}"
       dbname: "{{ env_var('DB_NAME') }}"
       schema: dbt_test
       vars:
-        data_retention_days: 90
+        is_production: false
+
 
     prod:
       type: postgres
       threads: 4
-      host: db
-      port: "{{ env_var('PG_PORT') }}"
+      host: localhost
+      port: "{{ env_var('PG_PORT') | int}}"
       user: "{{ env_var('DB_USER') }}"
       pass: "{{ env_var('DB_PASSWORD') }}"
       dbname: "{{ env_var('DB_NAME') }}"
       schema: dbt_prod
       vars:
-        data_retention_days: 365
+        is_production: false
+

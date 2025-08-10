@@ -14,7 +14,7 @@ sources:
   - name: jaffle_shop
     description: a clone of a Postgres application database
     database: dbt_db
-    schema: "{{ 'dbt_' + target.name }}"
+    schema: "{{ target.schema }}"
     # fresshness can be applied at a schema level. if the col for freshness not exist in one of the tables
     # set the freshness for that tabl as null.
     # generic tests can be applied on src
