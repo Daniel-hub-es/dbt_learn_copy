@@ -1,111 +1,48 @@
-name: dbt CI/CD
+# .github/workflows/ci.yml
+
+name: dbt CI Job
 
 on:
   pull_request:
     branches:
       - main
-      - qa
       - test
-  push:
-    branches:
-      - main
       - qa
-      - test
 
 env:
-  DB_HOST: db
-  DB_USER: ${{ secrets.DB_USER }}
-  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-  DB_NAME: ${{ secrets.DB_NAME }}
-  PG_PORT: 5432
-
+  DB_USER: "{{ env_var('DB_USER') }}"
+  DB_PASSWORD: "{{ env_var('DB_USER') }}"
+  DB_NAME: "{{ env_var('DB_USER') }}"
+  PG_PORT: "{{ env_var('PG_PORT') | int }}"
+  
 jobs:
-  # This job runs a full build on every push to a base branch
-  dbt-base-build:
-    if: github.event_name == 'push'
+  dbt_ci:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v2
 
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.10'
+          python-version: '3.9'
 
       - name: Install dbt
-        run: pip install dbt-postgres
-
-      - name: Determine dbt target
-        id: determine_target
         run: |
-          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
-            echo "dbt_target=prod" >> $GITHUB_OUTPUT
-            echo "artifact_name=dbt-artifacts-main" >> $GITHUB_OUTPUT
-          elif [ "${{ github.ref }}" == "refs/heads/qa" ]; then
-            echo "dbt_target=qa" >> $GITHUB_OUTPUT
-            echo "artifact_name=dbt-artifacts-qa" >> $GITHUB_OUTPUT
-          else
-            echo "dbt_target=test" >> $GITHUB_OUTPUT
-            echo "artifact_name=dbt-artifacts-test" >> $GITHUB_OUTPUT
-          fi
-      
-      - name: Run dbt build on base branch
-        run: dbt build --target ${{ steps.determine_target.outputs.dbt_target }}
-        env:
-          DB_HOST: db
+          pip install dbt-postgres
 
-      - name: Upload dbt artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ steps.determine_target.outputs.artifact_name }}
-          path: target/
-          retention-days: 7
-
-  # This is the slim CI job that runs on every PR
-  dbt-slim-ci:
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    env:
-      DBT_PR_ID: ${{ github.event.pull_request.number }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-      
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.10'
-
-      - name: Install dbt
-        run: pip install dbt-postgres
-
-      - name: Determine dbt base branch artifact
-        id: determine_base
+      - name: Setup dbt profiles
         run: |
-          if [ "${{ github.base_ref }}" == "main" ]; then
-            echo "artifact_name=dbt-artifacts-main" >> $GITHUB_OUTPUT
-          elif [ "${{ github.base_ref }}" == "qa" ]; then
-            echo "artifact_name=dbt-artifacts-qa" >> $GITHUB_OUTPUT
-          else
-            echo "artifact_name=dbt-artifacts-test" >> $GITHUB_OUTPUT
-          fi
-          
-      - name: Download dbt artifacts from base branch
-        uses: actions/download-artifact@v2
-        with:
-          name: ${{ steps.determine_base.outputs.artifact_name }}
-          path: target/
+          mkdir -p ~/.dbt
+          cp profiles.yml ~/.dbt/profiles.yml
 
-      - name: Run slim dbt build on PR
-        run: dbt build --target ci --state . --defer
+      - name: Run dbt build
         env:
-          DB_HOST: db
-          
-      - name: Drop temporary schema
+          GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: dbt build --target ci
+
+      - name: Cleanup schema
         if: always()
-        run: dbt run-operation drop_schema_if_exists --args '{schema_name: dbt_qa_pr_${{ env.DBT_PR_ID }}}'
         env:
-        DB_HOST: db
+          GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: dbt run-operation drop_schema_and_tables --target ci --args '{{ schema: "dbt_ci_pr_" ~ env_var("GITHUB_PR_NUMBER") }}'
