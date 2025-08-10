@@ -15,6 +15,18 @@ my_dbt_project:
       vars:
         is_production: false
 
+    ci:
+    type: postgres
+    threads: 4
+    host: db
+    port: "{{ env_var('PG_PORT') | int }}"
+    user: "{{ env_var('DB_USER') }}"
+    pass: "{{ env_var('DB_PASSWORD') }}"
+    dbname: "{{ env_var('DB_NAME') }}"
+    schema: dbt_ci
+    vars:
+      is_production: false
+
     qa:
       type: postgres
       threads: 4
@@ -30,8 +42,8 @@ my_dbt_project:
     test:
       type: postgres
       threads: 4
-      host: db
-      port: "{{ env_var('PG_PORT') }}"
+      host: localhost
+      port: "{{ env_var('PG_PORT') | int }}"
       user: "{{ env_var('DB_USER') }}"
       pass: "{{ env_var('DB_PASSWORD') }}"
       dbname: "{{ env_var('DB_NAME') }}"
@@ -43,8 +55,8 @@ my_dbt_project:
     prod:
       type: postgres
       threads: 4
-      host: db
-      port: "{{ env_var('PG_PORT') }}"
+      host: localhost
+      port: "{{ env_var('PG_PORT') | int}}"
       user: "{{ env_var('DB_USER') }}"
       pass: "{{ env_var('DB_PASSWORD') }}"
       dbname: "{{ env_var('DB_NAME') }}"
