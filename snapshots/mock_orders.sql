@@ -1,25 +1,21 @@
-{#
-
-Commented out as billing in BigQuery is not allowed and free trial not support MERGE, INSERT OR UPDATE
-
-
-{% snapshot mock_orders %}
+{% snapshot mock_orders_snapshot %}
 
 {% set new_schema = target.schema + '_snapshot' %}
 
 {{
     config(
-      target_database='dbt-fundamentals-448412',
-      target_schema=new_schema,
       unique_key='order_id',
-
       strategy='timestamp',
-      updated_at='updated_at'
+      updated_at='updated_at',
+      target_schema=new_schema,
     )
 }}
 
-select * from {{target.database}}.{{target.schema}}.mock_orders
+select 
+    order_id,
+    status,
+    CAST(created_at AS timestamp without time zone) as created_at,
+    CAST(updated_at AS timestamp without time zone) as updated_at
+from {{ ref('mock_orders') }}
 
 {% endsnapshot %}
-
-#}
