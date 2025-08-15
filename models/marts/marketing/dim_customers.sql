@@ -51,7 +51,8 @@ with
             customer_orders.most_recent_order_date,
             coalesce(customer_orders.number_of_orders, 0) as number_of_orders,
             customer_orders.lifetime_value,
-            'test_value' as dummy_column -- This is a dummy column for testing purposes.
+            'dummy_value' as dummy_column -- Adding a dummy column for demonstration
+
         from customers
         left join customer_orders
         on customers.customer_id = customer_orders.customer_id
