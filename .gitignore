@@ -9,7 +9,7 @@ __pycache__/
 dbt_packages/
 target/
 logs/
-
+dbt_base_state/
 # Secrets
 .env
 
