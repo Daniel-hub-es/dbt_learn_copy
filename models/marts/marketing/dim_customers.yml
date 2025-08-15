@@ -19,3 +19,4 @@ models:
         data_type: float
       - name: dummy_column
         data_type: string
+
